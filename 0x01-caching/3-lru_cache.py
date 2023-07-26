@@ -5,13 +5,15 @@ from base_caching import BaseCaching
 
 class LRUCache(BaseCaching):
     """Class to impliment a caching system using the LRC algo"""
+
     def __init__(self):
         """Class constructor"""
         super().__init__()
         self.keys = []
 
     def put(self, key, item):
-        """in LRC create a system that send the a key to the top of the queue whenever it is used.
+        """in LRC create a system that send the a key to the
+        top of the queue whenever it is used.
         Args:
             key = data key
             item: data
