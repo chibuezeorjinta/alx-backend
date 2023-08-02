@@ -27,7 +27,7 @@ def get_home():
 @babel.localeselector
 def get_locale():
 	"""Get client side location"""
-	if(request.args):
+	if request.args:
 		given_lang = request.args.get('locale')
 		if given_lang in Config.LANGUAGES:
 			return given_lang

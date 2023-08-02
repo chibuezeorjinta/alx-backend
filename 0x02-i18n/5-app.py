@@ -30,7 +30,7 @@ def get_home():
 	"""Return a basic flask web app"""
 	if not request.args.get('login_as'):
 		return render_template('5-index.html')
-	return render_template('5-index.html', user=g.user)
+	return render_template('5-index.html', user=g.user['name'])
 
 
 @babel.localeselector
@@ -58,9 +58,11 @@ def before_request():
 	if request.args.get('login_as'):
 		ID: int = int(request.args.get('login_as'))
 		g.user = get_user(ID)
+	else:
+		g.user = None
 
 
 if __name__ == "__main__":
 	host = getenv("API_HOST", "0.0.0.0")
 	port = getenv("API_PORT", 5000)
-	app.run(host=host, port=port)
+	app.run(host=host, port=port, debug=True)

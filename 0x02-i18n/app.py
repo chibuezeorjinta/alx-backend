@@ -7,7 +7,6 @@ from pytz import timezone, tzinfo
 from flask import Flask, render_template, request, g
 from flask_babel import Babel
 from os import getenv
-from typing import Union
 
 app = Flask(__name__)
 
@@ -33,16 +32,15 @@ users = {
 @app.get('/')
 def get_home():
 	"""Return a basic flask web app"""
-	if not request.args.get('login_as'):
-		return render_template('7-index.html')
-	current_time = datetime.datetime.now(datetime.timezone.utc)
+	if g.user is None:
+		out_time_formatted = datetime.datetime.now(pytz.utc).strftime('%b %d, %Y, %I:%M:%S %p')
+		return render_template('index.html', user=None, client_time=out_time_formatted)
 	client_timezone = get_timezone()
 	if client_timezone is None:
-		out_time_formatted = current_time.strftime('%b %d, %Y, %I:%M:%S %p')
+		out_time_formatted = datetime.datetime.now(pytz.utc).strftime('%b %d, %Y, %I:%M:%S %p')
 	else:
-		out_time = current_time.astimezone(client_timezone)
-		out_time_formatted = out_time.strftime('%b %d, %Y, %I:%M:%S %p')
-	return render_template('7-index.html', user=g.user, client_time=out_time_formatted)
+		out_time_formatted = datetime.datetime.now(timezone(client_timezone)).strftime('%b %d, %Y, %I:%M:%S %p')
+	return render_template('index.html', user=g.user['name'], client_time=out_time_formatted)
 
 
 @babel.localeselector
@@ -54,9 +52,10 @@ def get_locale():
 		if given_lang in Config.LANGUAGES:
 			return given_lang
 	# if locale is in user dictionary
-	if g.user['locale'] is not None:
-		if g.user['locale'] in Config.LANGUAGES:
-			return g.user['locale']
+	if g.user is not None:
+		if g.user['locale'] is not None:
+			if g.user['locale'] in Config.LANGUAGES:
+				return g.user['locale']
 	# check lang in request header
 	in_house_lang: list[str] = Config.LANGUAGES
 	return request.accept_languages.best_match(in_house_lang)
@@ -78,10 +77,12 @@ def before_request():
 	if request.args.get('login_as'):
 		ID: int = int(request.args.get('login_as'))
 		g.user = get_user(ID)
+	else:
+		g.user = None
 
 
 @babel.timezoneselector
-def get_timezone() -> Union[tzinfo, None]:
+def get_timezone():
 	"""Get the users time zone"""
 	# if timezone parameter is in url
 	if request.args.get('timezone'):

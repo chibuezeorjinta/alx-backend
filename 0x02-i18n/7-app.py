@@ -32,9 +32,9 @@ users = {
 @app.get('/')
 def get_home():
 	"""Return a basic flask web app"""
-	if not request.args.get('login_as'):
-		return render_template('7-index.html')
-	return render_template('7-index.html', user=g.user)
+	if g.user is None:
+		return render_template('7-index.html', user=None)
+	return render_template('7-index.html', user=g.user['name'])
 
 
 @babel.localeselector
@@ -46,9 +46,10 @@ def get_locale():
 		if given_lang in Config.LANGUAGES:
 			return given_lang
 	# if locale is in user dictionary
-	if g.user['locale'] is not None:
-		if g.user['locale'] in Config.LANGUAGES:
-			return g.user['locale']
+	if g.user is not None:
+		if g.user['locale'] is not None:
+			if g.user['locale'] in Config.LANGUAGES:
+				return g.user['locale']
 	# check lang in request header
 	in_house_lang: list[str] = Config.LANGUAGES
 	return request.accept_languages.best_match(in_house_lang)
@@ -70,6 +71,8 @@ def before_request():
 	if request.args.get('login_as'):
 		ID: int = int(request.args.get('login_as'))
 		g.user = get_user(ID)
+	else:
+		g.user = None
 
 
 @babel.timezoneselector
