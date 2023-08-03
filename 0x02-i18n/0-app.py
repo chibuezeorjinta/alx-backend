@@ -5,6 +5,7 @@ from os import getenv
 
 app = Flask(__name__)
 
+
 @app.get('/')
 def get_home():
     """Return a basic flask web app"""

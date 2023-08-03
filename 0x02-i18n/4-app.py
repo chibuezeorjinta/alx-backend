@@ -8,10 +8,10 @@ app = Flask(__name__)
 
 
 class Config:
-	"""Config language"""
-	LANGUAGES = ["en", "fr"]
-	BABEL_DEFAULT_LOCAL = "en"
-	BABEL_DEFAULT_TIMEZONE = "UTC"
+    """Config language"""
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCAL = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
 
 
 babel = Babel(app)
@@ -20,22 +20,22 @@ app.config.from_object(Config)
 
 @app.get('/')
 def get_home():
-	"""Return a basic flask web app"""
-	return render_template('4-index.html')
+    """Return a basic flask web app"""
+    return render_template('4-index.html')
 
 
 @babel.localeselector
 def get_locale():
-	"""Get client side location"""
-	if request.args:
-		given_lang = request.args.get('locale')
-		if given_lang in Config.LANGUAGES:
-			return given_lang
-	in_house_lang: list[str] = Config.LANGUAGES
-	return request.accept_languages.best_match(in_house_lang)
+    """Get client side location"""
+    if request.args:
+        given_lang = request.args.get('locale')
+        if given_lang in Config.LANGUAGES:
+            return given_lang
+    in_house_lang: list[str] = Config.LANGUAGES
+    return request.accept_languages.best_match(in_house_lang)
 
 
 if __name__ == "__main__":
-	host = getenv("API_HOST", "0.0.0.0")
-	port = getenv("API_PORT", 5000)
-	app.run(host=host, port=port)
+    host = getenv("API_HOST", "0.0.0.0")
+    port = getenv("API_PORT", 5000)
+    app.run(host=host, port=port)
